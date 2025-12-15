@@ -1,0 +1,17 @@
+[project]
+name = "practice-pal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.17.2",
+    "asyncio>=4.0.0",
+    "asyncpg>=0.31.0",
+    "dotenv>=0.9.9",
+    "fastapi>=0.124.4",
+    "pendulum>=3.1.0",
+    "pydantic-extra-types>=2.10.6",
+    "sqlalchemy>=2.0.45",
+    "uvicorn>=0.38.0",
+]
