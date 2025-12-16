@@ -1,8 +1,8 @@
-"""Removed default parameter to practice_session id. Trying to get it to generate new uuid for every session.
+"""Initial revision
 
-Revision ID: c87707b270e5
-Revises: d5ff06300d4b
-Create Date: 2025-12-15 14:04:00.191319
+Revision ID: 3c69ea83e3db
+Revises: 
+Create Date: 2025-12-16 15:22:50.854078
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'c87707b270e5'
-down_revision: Union[str, Sequence[str], None] = 'd5ff06300d4b'
+revision: str = '3c69ea83e3db'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

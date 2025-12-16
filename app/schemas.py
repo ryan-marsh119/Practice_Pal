@@ -1,17 +1,27 @@
 from pydantic import BaseModel
-from pydantic_extra_types.pendulum_dt import DateTime
+from datetime import date, time
 import uuid
+from fastapi_users import schemas
 
 class NewPracticeSession(BaseModel):
-    # id : uuid.UUID
-    # date : DateTime
-    duration : int
+    date : date
     notes : str
+    start_time : time
+    end_time : time
     goals : str | None = None
 
 class SavedPracticeSession(BaseModel):
     id : uuid.UUID
-    # date : DateTime
+    date : date
     duration : int
     notes : str
     goals : str | None = None
+
+class UserRead(schemas.BaseUser[uuid.UUID]):
+    pass
+
+class UserCreate(schemas.BaseUserCreate):
+    pass
+
+class UserUpdate(schemas.BaseUserUpdate):
+    pass
