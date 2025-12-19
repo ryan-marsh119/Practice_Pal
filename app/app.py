@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException
 from app.schemas import UserRead, UserCreate, UserUpdate, NewPracticeSession, SavedPracticeSession 
-from app.db import get_async_session, create_db_and_tables, PracticeSession
+from app.db import get_async_session, create_db_and_tables, PracticeSession, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from app.users import auth_backend, fastapi_users, current_active_user 
 from datetime import date, time, timedelta
-# from .routers import 
+from .routers import goals
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,12 +20,9 @@ app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), pref
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users", tags=["users"])
+app.include_router(goals.router)
 
-@app.get('/root')
-async def get_root():
-    return {"message": "root path works."}
-
-@app.get('/logs')
+@app.get('/sessions')
 async def get_logs(
     db: AsyncSession = Depends(get_async_session)
 ) -> list[SavedPracticeSession]:
@@ -37,7 +34,7 @@ async def get_logs(
 
 
 
-@app.post('/newlog')
+@app.post('/sessions')
 async def newlog(
     practice_session: NewPracticeSession,
     db: AsyncSession = Depends(get_async_session)
