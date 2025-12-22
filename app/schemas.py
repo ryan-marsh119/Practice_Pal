@@ -15,8 +15,6 @@ class SavedGoal(BaseModel):
     complete : bool
 
 class UpdateGoal(BaseModel):
-    id: UUID4 | None = None
-    user_id: UUID4 | None = None
     title: str | None = None
     description: str | None = None
     complete: bool | None = None
@@ -35,7 +33,13 @@ class SavedPracticeSession(BaseModel):
     end_time: time
     duration : int
     notes : str
-    goal_id: int
+    goal_id: UUID4
+
+class UpdatePracticeSession(BaseModel):
+    # date : date | None = None
+    notes : str | None = None
+    start_time : time | None = None
+    end_time : time | None = None
 
 class UserRead(schemas.BaseUser[UUID4]):
     pass

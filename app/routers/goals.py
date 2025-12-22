@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from ..db import Goal, PracticeSession, get_async_session, User
+from ..db import Goal, get_async_session, User
 from ..users import current_active_user
 from ..schemas import NewGoal, SavedGoal, UpdateGoal
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,8 +13,8 @@ router = APIRouter(
 
 @router.get("/")
 async def get_goal(
-    db: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_active_user)
+    user: User = Depends(current_active_user),
+    db: AsyncSession = Depends(get_async_session)
 ) -> list[SavedGoal]:
     stmt = select(Goal).where(Goal.user_id == user.id)
     result = await db.scalars(stmt)
@@ -40,7 +40,7 @@ async def get_goal(
     
     return SavedGoal.model_validate(goal, from_attributes=True)
 
-@router.put("/make_goal", status_code=201)
+@router.post("/new", status_code=201)
 async def make_goal(
     goal: NewGoal,
     db: AsyncSession = Depends(get_async_session),
@@ -85,7 +85,48 @@ async def complete_goal(
 
     return SavedGoal.model_validate(db_result, from_attributes=True)
 
-# https://docs.pydantic.dev/2.12/errors/validation_errors/#model_attributes_type
+@router.put("/update/{id}", status_code=200)
+async def update_goal(
+    id: uuid.UUID,
+    goal: UpdateGoal,
+    db: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user)
 
-#@router.put("/update_goal")    
-# 3850c5a8-889f-4e4d-af7d-a7a06321fb8f
+) -> UpdateGoal:
+    stmt = select(Goal).where(Goal.id == id)
+    result = await db.execute(stmt)
+    db_result = result.scalar_one_or_none()
+
+    if not db_result:
+        raise HTTPException(status_code=404, detail="Goal not found.")
+    
+    if db_result.user_id != user.id:
+        raise HTTPException(status_code=401, detail="Not your goal. Unauthorized.")
+    
+    update_data = goal.model_dump()
+    for key, value in update_data.items():
+        setattr(db_result, key, value)
+
+    await db.commit()
+    await db.refresh(db_result)
+
+    return UpdateGoal.model_validate(db_result, from_attributes=True)
+
+@router.delete("/delete/{id}", status_code=204)
+async def delete_goal(
+    id: uuid.UUID,
+    user: User = Depends(current_active_user),
+    db: AsyncSession = Depends(get_async_session)
+) -> None:
+    stmt = select(Goal).where(Goal.id == id)
+    result = await db.execute(stmt)
+    deleted_goal = result.scalar_one_or_none()
+
+    if not deleted_goal:
+        raise HTTPException(status_code=404, detail="Goal not found.")
+
+    if deleted_goal.user_id != user.id:
+        raise HTTPException(status_code=401, detail="Not your goal. Unauthorized.")
+    
+    await db.delete(deleted_goal)
+    await db.commit()
